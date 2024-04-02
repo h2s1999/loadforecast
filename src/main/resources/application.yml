@@ -1,0 +1,67 @@
+spring:
+  application:
+    name: loadforecast
+
+  datasource:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://${VPP_PLATFORM_DB_URL}/client
+    username: ${VPP_PLATFORM_DB_USERNAME}
+    password: ${VPP_PLATFORM_DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      auto-commit: false
+      connection-init-test-query: SELECT 1 FROM DUAL
+
+  datasource-dh:
+    driver-class-name: org.mariadb.jdbc.Driver
+    url: jdbc:mariadb://${DATAHUB_DB_URL}/datahub
+    username: ${DATAHUB_DB_USERNAME}
+    password: ${DATAHUB_DB_PASSWORD}
+    hikari:
+      maximum-pool-size: 10
+      auto-commit: false
+      connection-test-query: SELECT 1 FROM DUAL
+
+  jpa:
+    spring.jpa.database-platform: org.hibernate.dialect.MariadbDialect
+
+  h2:
+    console.enabled: true
+
+server:
+  port: 9000
+
+cim-real:
+  user-id: ${CIM_REAL_USERID}
+  password: ${CIM_REAL_PASSWORD}
+
+logging:
+  file:
+    name: ./logs/loadforecast.log
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB
+      max-history: 30
+  level:
+    root: info
+
+# health check
+management:
+  health:
+    mail:
+      enabled: false
+  endpoint:
+    health:
+      show-details: always
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - conditions
+        exclude:
+          - env
+          - beans
+          - threaddump
+          - heapdump

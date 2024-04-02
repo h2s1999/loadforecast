@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="io.vpplab.external.client.vpf.VPFDao">
+    <insert id="insertLoadForecast" parameterType="InsertLFRequest">
+        INSERT INTO loadforecast_tb (
+            jeju_yn
+            ,schedule_type
+            ,transaction_at
+            ,value
+        )
+        SELECT b.jeju_yn, b.schedule_type, b.transaction_at, b.value
+        FROM loadforecast_tb AS a
+        RIGHT OUTER JOIN
+        (
+        <foreach collection="list" item="req" separator="UNION ALL">
+            SELECT
+             #{req.jejuYn} AS jeju_yn
+            , #{req.scheduleType} AS schedule_type
+            , #{req.transactionAt} AS transaction_at
+            , #{req.value} AS value
+        </foreach>
+        ) AS b
+        ON a.transaction_at = b.transaction_at
+        WHERE a.transaction_at IS NULL AND a.schedule_type IS NULL
+        ON DUPLICATE KEY UPDATE
+        value = CASE WHEN b.value != a.value THEN b.value ELSE a.value END
+    </insert>
+
+</mapper>
